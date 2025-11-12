@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatConnect - Global</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+        }
+
+        .auth-screen, .chat-screen {
+            padding: 40px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .setup-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .setup-notice h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-notice p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: -40px -40px 30px -40px;
+        }
+
+        .user-info {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .online-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #27ae60;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .friend-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .friend-item, .request-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .friend-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-accept {
+            background: #27ae60;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-chat {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-2px);
+        }
+
+        .chat-box {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 70%;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-sent {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message-received {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .message-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input input {
+            flex: 1;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .debug-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Screen -->
+        <div id="authScreen" class="auth-screen">
+            <h1>🌍 ChatConnect Global</h1>
+            <p class="subtitle">Free forever • Works worldwide</p>          
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password (min 6 characters)">
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()">Login</button>
+            <button class="btn btn-secondary" onclick="register()">Create Account</button>
+            
+            <div id="authMessage"></div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chatScreen" class="chat-screen hidden">
+            <div class="chat-header">
+                <div class="user-info">
+                    <span class="online-indicator"></span>
+                    <span id="currentUser"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab(event, 'friends')">Friends</button>
+                <button class="tab" onclick="showTab(event, 'requests')">Requests (<span id="requestCount">0</span>)</button>
+                <button class="tab" onclick="showTab(event, 'add')">Add Friend</button>
+                <button class="tab" onclick="showTab(event, 'chat')">Chat</button>
+            </div>
+
+            <!-- Friends Tab -->
+            <div id="friendsTab" class="tab-content active">
+                <div id="friendsList" class="friend-list"></div>
+            </div>
+
+            <!-- Requests Tab -->
+            <div id="requestsTab" class="tab-content">
+                <div id="requestsList" class="friend-list"></div>
+            </div>
+
+            <!-- Add Friend Tab -->
+            <div id="addTab" class="tab-content">
+                <div class="input-group">
+                    <label for="friendUsername">Friend's Username</label>
+                    <input type="text" id="friendUsername" placeholder="Enter username">
+                </div>
+                <button class="btn btn-primary" onclick="sendFriendRequest()">Send Friend Request</button>
+                <div id="addMessage"></div>
+            </div>
+
+            <!-- Chat Tab -->
+            <div id="chatTab" class="tab-content">
+                <div id="chatBox" class="chat-box">
+                    <div class="empty-state">Select a friend to start chatting</div>
+                </div>
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+                    <button class="send-btn" onclick="sendMessage()" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // 🔥 FIREBASE CONFIGURATION - REPLACE WITH YOUR OWN
+        const firebaseConfig = {
+            apiKey: "AIzaSyDw7NMX_CHLPt2meMjkOBmb1V6nLIUYCeQ",
+            authDomain: "chatconnectglobal-app.firebaseapp.com",
+            databaseURL: "https://chatconnectglobal-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "chatconnectglobal-app",
+            storageBucket: "chatconnectglobal-app.firebasestorage.app",
+            messagingSenderId: "728203295759",
+            appId: "1:728203295759:android:2eb51e6330cf948b06377a"
+        };
+
+        // Initialize Firebase
+        let app, auth, database;
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            console.log("✅ Firebase initialized successfully!");
+        } catch (error) {
+            console.error("❌ Firebase initialization error:", error);
+            alert("Firebase not configured! Please add your Firebase config. See instructions at bottom of HTML file.");
+        }
+
+        let currentUser = null;
+        let currentChat = null;
+        let messageListener = null;
+
+        function showMessage(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = isError ? 'error' : 'success';
+            setTimeout(() => el.textContent = '', 4000);
+        }
+
+        async function register() {
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showMessage('authMessage', 'Please fill in all fields', true);
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('authMessage', 'Password must be at least 6 characters', true);
+                return;
+            }
+
+            try {
+                // Check if username already exists
+                const userCheck = await database.ref('usernames/' + username).once('value');
+                if (userCheck.exists()) {
+                    showMessage('authMessage', 'Username already exists', true);
+                    return;
+                }
+
+                const email = username + '@chatconnect.app';
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Create user profile
+                await database.ref('users/' + userCredential.user.uid).set({
+                    username: username,
+                    email: email,
+                    createdAt: Date.now()
+                });
+
+                // Reserve username
+                await database.ref('usernames/' + username).set(userCredential.user.uid);
+
+                showMessage('authMessage', 'Account created! Please login.');
+                console.log("✅ User registered:", username);
+            } catch (error) {
+                console.error("❌ Registration error:", error);
+                showMessage('authMessage', error.message, true);
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showMessage('authMessage', 'Please fill in all fields', true);
+                return;
+            }
+
+            try {
+                const email = username + '@chatconnect.app';
+                await auth.signInWithEmailAndPassword(email, password);
+                
+                currentUser = username;
+                document.getElementById('currentUser').textContent = username;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('chatScreen').classList.remove('hidden');
+                
+                console.log("✅ User logged in:", username);
+                setupRealtimeListeners();
+                updateFriendsList();
+                updateRequestsList();
+            } catch (error) {
+                console.error("❌ Login error:", error);
+                showMessage('authMessage', 'Invalid username or password', true);
+            }
+        }
+
+        function logout() {
+            if (messageListener) {
+                database.ref('chats').off('value', messageListener);
+            }
+            auth.signOut();
+            currentUser = null;
+            currentChat = null;
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('chatScreen').classList.add('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            console.log("✅ User logged out");
+        }
+
+        function setupRealtimeListeners() {
+            // Listen for friend requests
+            database.ref('friendRequests/' + currentUser).on('value', (snapshot) => {
+                console.log("🔔 Friend requests updated");
+                updateRequestsList();
+            });
+
+            // Listen for friends list
+            database.ref('friends/' + currentUser).on('value', (snapshot) => {
+                console.log("🔔 Friends list updated");
+                updateFriendsList();
+            });
+        }
+
+        function showTab(event, tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        async function sendFriendRequest() {
+            const friendUsername = document.getElementById('friendUsername').value.trim().toLowerCase();
+
+            if (!friendUsername) {
+                showMessage('addMessage', 'Please enter a username', true);
+                return;
+            }
+
+            if (friendUsername === currentUser) {
+                showMessage('addMessage', 'You cannot add yourself', true);
+                return;
+            }
+
+            try {
+                // Check if user exists
+                const userCheck = await database.ref('usernames/' + friendUsername).once('value');
+                if (!userCheck.exists()) {
+                    showMessage('addMessage', 'User does not exist', true);
+                    console.log("❌ User not found:", friendUsername);
+                    return;
+                }
+
+                // Check if already friends
+                const friendCheck = await database.ref('friends/' + currentUser + '/' + friendUsername).once('value');
+                if (friendCheck.exists()) {
+                    showMessage('addMessage', 'Already friends', true);
+                    return;
+                }
+
+                // Check if request already sent
+                const requestCheck = await database.ref('friendRequests/' + friendUsername + '/' + currentUser).once('value');
+                if (requestCheck.exists()) {
+                    showMessage('addMessage', 'Request already sent', true);
+                    return;
+                }
+
+                // Send friend request
+                await database.ref('friendRequests/' + friendUsername + '/' + currentUser).set({
+                    from: currentUser,
+                    timestamp: Date.now()
+                });
+
+                showMessage('addMessage', 'Friend request sent to ' + friendUsername + '!');
+                document.getElementById('friendUsername').value = '';
+                console.log("✅ Friend request sent from", currentUser, "to", friendUsername);
+            } catch (error) {
+                console.error("❌ Error sending friend request:", error);
+                showMessage('addMessage', 'Error sending request: ' + error.message, true);
+            }
+        }
+
+        async function acceptRequest(username) {
+            try {
+                console.log("✅ Accepting request from:", username);
+                
+                // Add to both friends lists
+                await database.ref('friends/' + currentUser + '/' + username).set(true);
+                await database.ref('friends/' + username + '/' + currentUser).set(true);
+                
+                // Remove friend request
+                await database.ref('friendRequests/' + currentUser + '/' + username).remove();
+                
+                console.log("✅ Friend request accepted");
+                updateRequestsList();
+                updateFriendsList();
+            } catch (error) {
+                console.error("❌ Error accepting request:", error);
+            }
+        }
+
+        async function rejectRequest(username) {
+            try {
+                console.log("✅ Rejecting request from:", username);
+                await database.ref('friendRequests/' + currentUser + '/' + username).remove();
+                updateRequestsList();
+            } catch (error) {
+                console.error("❌ Error rejecting request:", error);
+            }
+        }
+
+        async function updateRequestsList() {
+            try {
+                const snapshot = await database.ref('friendRequests/' + currentUser).once('value');
+                const requests = snapshot.val() || {};
+                const requestsList = document.getElementById('requestsList');
+                const requestCount = document.getElementById('requestCount');
+                
+                const requestArray = Object.keys(requests);
+                requestCount.textContent = requestArray.length;
+
+                console.log("📋 Friend requests:", requestArray.length);
+
+                if (requestArray.length === 0) {
+                    requestsList.innerHTML = '<div class="empty-state">No friend requests</div>';
+                    return;
+                }
+
+                requestsList.innerHTML = requestArray.map(username => `
+                    <div class="request-item">
+                        <div>
+                            <div class="friend-name">${username}</div>
+                            <div class="status">wants to be your friend</div>
+                        </div>
+                        <div>
+                            <button class="btn-small btn-accept" onclick="acceptRequest('${username}')">Accept</button>
+                            <button class="btn-small btn-reject" onclick="rejectRequest('${username}')">Reject</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error("❌ Error updating requests:", error);
+            }
+        }
+
+        async function updateFriendsList() {
+            try {
+                const snapshot = await database.ref('friends/' + currentUser).once('value');
+                const friends = snapshot.val() || {};
+                const friendsList = document.getElementById('friendsList');
+                
+                const friendArray = Object.keys(friends);
+
+                console.log("👥 Friends list:", friendArray.length);
+
+                if (friendArray.length === 0) {
+                    friendsList.innerHTML = '<div class="empty-state">No friends yet. Add some friends!</div>';
+                    return;
+                }
+
+                friendsList.innerHTML = friendArray.map(username => `
+                    <div class="friend-item">
+                        <div>
+                            <div class="friend-name">${username}</div>
+                            <div class="status">Friend</div>
+                        </div>
+                        <button class="btn-small btn-chat" onclick="openChat('${username}')">Chat</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error("❌ Error updating friends:", error);
+            }
+        }
+
+        function openChat(username) {
+            currentChat = username;
+            
+            // Switch to chat tab programmatically
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab')[3].classList.add('active');
+            document.getElementById('chatTab').classList.add('active');
+            
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            
+            console.log("💬 Opening chat with:", username);
+            loadMessages();
+        }
+
+        function loadMessages() {
+            const chatId = [currentUser, currentChat].sort().join('-');
+            const chatBox = document.getElementById('chatBox');
+            
+            // Remove old listener if exists
+            if (messageListener) {
+                database.ref('chats/' + chatId).off('value', messageListener);
+            }
+
+            // Set up new listener
+            messageListener = database.ref('chats/' + chatId).on('value', (snapshot) => {
+                const messages = snapshot.val() || {};
+                const messageArray = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
+                
+                if (messageArray.length === 0) {
+                    chatBox.innerHTML = `<div class="empty-state">Start a conversation with ${currentChat}</div>`;
+                    return;
+                }
+
+                chatBox.innerHTML = messageArray.map(msg => `
+                    <div class="message ${msg.sender === currentUser ? 'message-sent' : 'message-received'}">
+                        ${msg.text}
+                        <div class="message-time">${new Date(msg.timestamp).toLocaleTimeString()}</div>
+                    </div>
+                `).join('');
+                
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text || !currentChat) return;
+
+            const chatId = [currentUser, currentChat].sort().join('-');
+            const messageRef = database.ref('chats/' + chatId).push();
+            
+            messageRef.set({
+                sender: currentUser,
+                text: text,
+                timestamp: Date.now()
+            });
+
+            input.value = '';
+            console.log("📤 Message sent to:", currentChat);
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
+
+<!-- 
+🔥 FIREBASE SETUP INSTRUCTIONS (5 MINUTES)
+==========================================
+
+1. GO TO FIREBASE CONSOLE:
+   Visit: https://console.firebase.google.com
+   Click "Add project" or use existing project
+
+2. CREATE/SELECT PROJECT:
+   - Project name: ChatConnect (or any name)
+   - Click "Continue" through the steps
+   - Click "Create project"
+
+3. ENABLE AUTHENTICATION:
+   - In left sidebar, click "Authentication"
+   - Click "Get started"
+   - Click "Email/Password" under Sign-in providers
+   - Enable it and click "Save"
+
+4. ENABLE REALTIME DATABASE:
+   - In left sidebar, click "Realtime Database"
+   - Click "Create Database"
+   - Choose location (closest to you)
+   - Start in "Test mode" (for now)
+   - Click "Enable"
+
+5. SET DATABASE RULES (IMPORTANT!):
+   - Click "Rules" tab
+   - Replace with this:
+   {
+     "rules": {
+       "users": {
+         "$uid": {
+           ".read": true,
+           ".write": "$uid === auth.uid"
+         }
+       },
+       "usernames": {
+         ".read": true,
+         ".write": "auth != null"
+       },
+       "friends": {
+         "$username": {
+           ".read": "auth != null",
+           ".write": "auth != null"
+         }
+       },
+       "friendRequests": {
+         "$username": {
+           ".read": "auth != null",
+           ".write": "auth != null"
+         }
+       },
+       "chats": {
+         ".read": "auth != null",
+         ".write": "auth != null"
+       }
+     }
+   }
+   - Click "Publish"
+
+6. GET YOUR CONFIG:
+   - Click the gear icon (⚙️) next to "Project Overview"
+   - Click "Project settings"
+   - Scroll down to "Your apps"
+   - Click the "</>" (web) icon
+   - Register app (name: ChatConnect)
+   - Copy the firebaseConfig object
+
+7. UPDATE THIS FILE:
+   - Find the firebaseConfig section above (around line 290)
+   - Replace "YOUR_API_KEY_HERE" etc. with your actual values
+   - Save the file
+
+8. OPEN THE FILE:
+   - Just open this HTML file in any browser
+   - Open browser console (F12) to see debug logs
+   - It works globally - no server needed!
+   - Share with friends worldwide!
+
+9. TESTING:
+   - Create account "alice" in one browser tab
+   - Create account "bob" in another tab (or incognito)
+   - Bob sends friend request to "alice"
+   - Alice accepts it in Requests tab
+   - Now they can chat!
+
+10. DEPLOY (OPTIONAL):
+   - Upload this single HTML file to:
+     * Netlify (netlify.com) - drag and drop!
+     * GitHub Pages
+     * Vercel
+     * Firebase Hosting
+
+TROUBLESHOOTING:
+- Press F12 to open console and check for errors
+- Make sure Database Rules are set correctly (step 5)
+- Usernames are case-insensitive (automatically lowercase)
+- Check console logs for detailed debugging info
+
+FREE FOREVER:
+✅ Firebase Spark Plan is FREE
+✅ 10GB storage
+✅ 100K simultaneous connections
+✅ No credit card needed
+✅ Works worldwide
+
+THAT'S IT! 🎉
+-->
